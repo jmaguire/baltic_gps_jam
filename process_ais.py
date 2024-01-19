@@ -79,11 +79,8 @@ def get_zero_crossings(df):
                     nics = get_elems_from_buffer(flight_dict[hex_code], "nic")
                     # Trigger a zero crossing when gain or loss occurs
                     if detect_loss_or_recovery(nics):
-                        indices = get_elems_from_buffer(
-                            flight_dict[hex_code], "index")
-                        timestamps = [str(elem) for elem in get_elems_from_buffer(
-                            flight_dict[hex_code], "timestamp")]
-                        zero_cross_index = indices[int(BUFFER_SIZE/2)]
+                        zero_cross_index = flight_dict[hex_code][int(
+                            BUFFER_SIZE/2)]["index"]
                         zero_cross_record = df.iloc[zero_cross_index]
                         zero_crossing = {
                             "hex_code": zero_cross_record["hex"],
@@ -91,9 +88,13 @@ def get_zero_crossings(df):
                             "row_index": zero_cross_index,
                             "lat": zero_cross_record["lat"],
                             "lon": zero_cross_record["lon"],
-                            "nics": nics,
-                            "timestamps": timestamps
+                            "nics": nics
                         }
+
+                        # timestamps = [str(elem) for elem in get_elems_from_buffer(
+                        #     flight_dict[hex_code], "timestamp")]
+                        # zero_crossing[timestamps] = timestamps
+
                         zero_crossings.append(zero_crossing)
 
                         # Flush buffer when we find a zero crossing so we don't double count
