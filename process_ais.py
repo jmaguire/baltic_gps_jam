@@ -8,12 +8,13 @@ import collections
 import simplekml
 from polycircles import polycircles
 
-BUFFER_SIZE = 30  # use even number for simple dividing in half
+BUFFER_SIZE = 6  # use even number for simple dividing in half
 THRESHOLD_LOW = .5
 THRESHOLD_HIGH = 8
 RADIUS_EARTH = 6371000
 FEET_TO_METERS = 0.3048
 MAX_SAMPLE_DELTA_SECONDS = 120
+MIN_ALT_FEET = 10000
 
 
 # Compute zero crossings from a file of ais data
@@ -34,7 +35,7 @@ def get_zero_crossings(df):
                 continue
 
             # Skip aircraft on the ground
-            if altitude < 10000:
+            if altitude < MIN_ALT_FEET:
                 continue
 
             # If first time seen, add buffer
@@ -77,6 +78,10 @@ def get_zero_crossings(df):
 
                 # Loss of GPS is when prior window was above and later is below
                 loss_of_gps = prior_window_avg >= THRESHOLD_HIGH and later_window_avg < THRESHOLD_LOW
+
+                if gain_of_gps and loss_of_gps:
+                    print("WTF")
+                    print(prior_window_avg,later_window_avg)
 
                 # Trigger a zero crossing when gain or loss occurs
                 if gain_of_gps or loss_of_gps:
@@ -127,7 +132,7 @@ def create_kml(zero_crossings, filename='data.kml'):
                                             longitude=elem['lon'],
                                             radius=radius,
                                             number_of_vertices=36)
-        pol = kml.newpolygon(name="Columbus Circle, Manhattan",
+        pol = kml.newpolygon(name="KRAZY KAT BAT KILLER",
                              outerboundaryis=polycircle.to_kml())
         pol.style.polystyle.color = \
             simplekml.Color.changealphaint(10, simplekml.Color.red)
